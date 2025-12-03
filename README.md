@@ -6,7 +6,7 @@ A ready-to-use Node.js payment system for Paystack STK Push (Mobile Money). Inte
 
 ```bash
 # Clone and install
-git clone https://github.com/yourusername/paystack-stk-demo.git
+git clone https://github.com/Fortunatusmokaya/paystack-mpesa-stk.git
 cd paystack-stk-demo
 npm install
 
@@ -18,7 +18,6 @@ npm install
 PAYSTACK_SECRET_KEY=your_secret_key_here
 PAYSTACK_PUBLIC_KEY=your_public_key_here
 PORT=3000
-CALLBACK_URL=http://localhost:3000/callback
 
 # Run
 node server.js
