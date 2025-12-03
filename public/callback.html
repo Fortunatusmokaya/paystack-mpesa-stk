@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Callback</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="payment-card">
+            <h1>Payment Status</h1>
+            <div id="status" class="message">
+                Verifying payment...
+            </div>
+            <button id="homeButton" style="margin-top: 20px; display: none;">
+                Back to Home
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const reference = urlParams.get('reference');
+        const statusDiv = document.getElementById('status');
+        const homeButton = document.getElementById('homeButton');
+
+        if (reference) {
+            fetch(`/api/verify-payment/${reference}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status && data.data.status === 'success') {
+                        statusDiv.textContent = `Payment successful! Reference: ${reference}`;
+                        statusDiv.className = 'message success';
+                    } else {
+                        statusDiv.textContent = 'Payment verification failed';
+                        statusDiv.className = 'message error';
+                    }
+                    homeButton.style.display = 'block';
+                })
+                .catch(error => {
+                    statusDiv.textContent = 'Error verifying payment';
+                    statusDiv.className = 'message error';
+                    homeButton.style.display = 'block';
+                });
+        } else {
+            statusDiv.textContent = 'No payment reference found';
+            statusDiv.className = 'message error';
+            homeButton.style.display = 'block';
+        }
+
+        homeButton.addEventListener('click', () => {
+            window.location.href = '/';
+        });
+    </script>
+</body>
+</html>
