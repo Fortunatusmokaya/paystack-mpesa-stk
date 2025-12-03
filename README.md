@@ -1,3 +1,4 @@
+```markdown
 # Paystack STK Push Demo
 
 A ready-to-use Node.js payment system for Paystack STK Push (Mobile Money). Integrate this directly into your website to handle payments.
@@ -7,19 +8,25 @@ A ready-to-use Node.js payment system for Paystack STK Push (Mobile Money). Inte
 ```bash
 # Clone and install
 git clone https://github.com/Fortunatusmokaya/paystack-mpesa-stk.git
-cd paystack-stk-demo
+cd paystack-mpesa-stk
 npm install
+```
 
-# Configure Paystack
-# 1. Create account at https://paystack.com
-# 2. Get API keys from dashboard
-# 3. Update .env file:
+Configure Paystack
 
+1. Create account at https://paystack.com
+2. Get API keys from dashboard
+3. Create .env file and update:
+
+```env
 PAYSTACK_SECRET_KEY=your_secret_key_here
 PAYSTACK_PUBLIC_KEY=your_public_key_here
 PORT=3000
+```
 
-# Run
+Run the Application
+
+```bash
 node server.js
 ```
 
@@ -52,8 +59,10 @@ Notes
 · Use test keys for development
 · Don't expose your keys though
 · For production: use live keys, enable HTTPS
-· Minimum amount: 100 KES
+
 
 License
 
 MIT
+
+```
