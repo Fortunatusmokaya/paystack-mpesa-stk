@@ -1,49 +1,222 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Paystack Payment</title>
+    <title>PayStack Pro</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <!-- Ionicons for icons -->
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </head>
+
 <body>
-    <div class="container">
-        <div class="payment-card">
-            <h1>Make Payment</h1>
-            <form id="paymentForm">
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        placeholder="Enter your email"
-                        required
-                    >
-                </div>
 
-                <div class="form-group">
-                    <label for="amount">Amount (KES)</label>
-                    <input 
-                        type="number" 
-                        id="amount" 
-                        name="amount" 
-                        placeholder="Enter amount"
-                        min="1"
-                        required
-                    >
-                </div>
+    <div class="app-container">
 
-                <button type="submit" id="payButton">
-                    Pay Now
+        <!-- AUTH VIEW -->
+        <section id="auth-view" class="view active">
+            <div class="auth-card glass-panel">
+                <div class="logo">
+                    <ion-icon name="wallet-outline"></ion-icon>
+                    <h1>PayStack Pro</h1>
+                </div>
+                <p>Secure. Fast. Premium.</p>
+
+                <form id="loginForm">
+                    <div class="input-group">
+                        <ion-icon name="call-outline"></ion-icon>
+                        <input type="tel" id="mobileNumber" placeholder="Enter Mobile Number" required>
+                    </div>
+                    <button type="submit" class="btn-primary">
+                        Continue <ion-icon name="arrow-forward-outline"></ion-icon>
+                    </button>
+                </form>
+
+                <div class="divider"><span>OR</span></div>
+
+                <button id="expressLoginBtn" class="btn-secondary hidden">
+                    <ion-icon name="finger-print-outline"></ion-icon> Express Login
                 </button>
-            </form>
+            </div>
+        </section>
 
-            <div id="message" class="message"></div>
-        </div>
+        <!-- DASHBOARD VIEW -->
+        <section id="dashboard-view" class="view hidden">
+            <nav class="glass-nav">
+                <div class="nav-brand">
+                    <ion-icon name="wallet"></ion-icon> PayStack
+                </div>
+                <div class="user-profile">
+                    <span id="userPhoneDisplay">07XX XXX XXX</span>
+                    <button id="logoutBtn" class="btn-icon"><ion-icon name="log-out-outline"></ion-icon></button>
+                </div>
+            </nav>
+
+            <div class="dashboard-content">
+                <!-- TABS -->
+                <div class="tabs">
+                    <button class="tab-btn active" data-tab="pay">Payment</button>
+                    <button class="tab-btn" data-tab="history">History</button>
+                    <button class="tab-btn" data-tab="products">My Products</button>
+                    <button class="tab-btn" data-tab="reviews">Reviews</button>
+                </div>
+
+                <!-- PAY TAB -->
+                <div id="pay-tab" class="tab-content active">
+                    <div class="pay-card glass-panel">
+                        <h2>Make a Payment</h2>
+                        <form id="paymentForm">
+                            <div class="input-group">
+                                <label>Email (Receipts)</label>
+                                <input type="email" id="email" placeholder="email@example.com" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Amount (KES)</label>
+                                <input type="number" id="amount" placeholder="0.00" min="1" required>
+                            </div>
+
+                            <div class="payment-methods">
+                                <p>Pay securely with:</p>
+                                <div class="icons">
+                                    <ion-icon name="card-outline" title="Card"></ion-icon>
+                                    <ion-icon name="phone-portrait-outline" title="M-Pesa"></ion-icon>
+                                    <ion-icon name="qr-code-outline" title="QR"></ion-icon>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn-primary large">
+                                Pay Now (Popup)
+                            </button>
+                        </form>
+                        <div id="payMessage"></div>
+                    </div>
+
+                    <!-- Mpesa Express Direct -->
+                    <div class="glass-panel mt-20">
+                        <div class="flex-row">
+                            <h3><ion-icon name="flash-outline"></ion-icon> Mpesa Express</h3>
+                        </div>
+                        <p class="text-muted" style="margin-bottom: 10px;">Instant STK Push to your phone.</p>
+
+                        <form id="mpesaExpressForm">
+                            <div class="input-group">
+                                <label>Mpesa Phone Number</label>
+                                <input type="tel" id="stkPhone" placeholder="07XX XXX XXX" required>
+                            </div>
+                            <button type="submit" class="btn-success">
+                                Send Request <ion-icon name="send-outline"></ion-icon>
+                            </button>
+                        </form>
+                        <div id="stkMessage" class="mt-20"></div>
+                    </div>
+
+                    <!-- Express Mode Setup -->
+                    <div class="express-promo glass-panel mt-20">
+                        <div class="flex-row">
+                            <div>
+                                <h3>Enable Express Mode</h3>
+                                <p>Use biometric / fingerprint for faster login next time.</p>
+                            </div>
+                            <button id="enableExpressBtn" class="btn-small">Enable</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HISTORY TAB -->
+                <div id="history-tab" class="tab-content">
+                    <div class="glass-panel">
+                        <div class="flex-row header-row">
+                            <h2>Transaction History</h2>
+                            <button id="refreshHistory" class="btn-icon"><ion-icon
+                                    name="refresh-outline"></ion-icon></button>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="historyTable">
+                                <thead>
+                                    <tr>
+                                        <th>Ref</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PRODUCTS TAB (Merchant) -->
+                <div id="products-tab" class="tab-content">
+                    <div class="glass-panel">
+                        <h2>Create Payment Link</h2>
+                        <form id="productForm">
+                            <div class="input-group">
+                                <label>Product Name</label>
+                                <input type="text" id="prodName" placeholder="e.g. My Ebook" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Price (KES)</label>
+                                <input type="number" id="prodPrice" placeholder="1000" required>
+                            </div>
+                            <div class="input-group">
+                                <label>Description</label>
+                                <input type="text" id="prodDesc" placeholder="Short description">
+                            </div>
+                            <button type="submit" class="btn-primary">Create Link</button>
+                        </form>
+
+                        <div class="divider"></div>
+
+                        <h3>Your Products</h3>
+                        <div id="productsList" class="reviews-container">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- REVIEWS TAB -->
+                <div id="reviews-tab" class="tab-content">
+                    <div class="glass-panel">
+                        <h2>Live Reviews</h2>
+                        <div id="reviewsList" class="reviews-container">
+                            <!-- Populated by JS -->
+                        </div>
+
+                        <form id="reviewForm" class="mt-20">
+                            <div class="rating-select">
+                                <span>Rate Us:</span>
+                                <select id="reviewRating">
+                                    <option value="5">🔥🔥🔥🔥🔥 (Excellent)</option>
+                                    <option value="4">🔥🔥🔥🔥 (Good)</option>
+                                    <option value="3">🔥🔥🔥 (Okay)</option>
+                                    <option value="2">🔥🔥 (Bad)</option>
+                                    <option value="1">🔥 (Terrible)</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <input type="text" id="reviewComment" placeholder="Write a comment..." required>
+                                <button type="submit" class="btn-secondary">Post</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
     </div>
 
+    <!-- Scripts -->
     <script src="https://js.paystack.co/v1/inline.js"></script>
+    <script src="https://unpkg.com/@simplewebauthn/browser/dist/bundle/index.umd.min.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>

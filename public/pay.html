@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PayStack Pro - Secure Payment</title>
+    <link rel="stylesheet" href="/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <section class="view active">
+            <div class="glass-panel text-center">
+                <div class="logo">
+                    <ion-icon name="wallet-outline"></ion-icon>
+                    <h1>PayStack Pro</h1>
+                </div>
+
+                <div id="loading" class="mt-20">Loading Product Details...</div>
+
+                <div id="productDetails" class="hidden mt-20">
+                    <h2 id="pName">Product Name</h2>
+                    <p id="pDesc" class="text-muted">Description</p>
+                    <div class="price-tag">KES <span id="pPrice">0</span></div>
+
+                    <form id="publicPayForm" class="mt-20">
+                        <div class="input-group">
+                            <label>Enter your email to receive this item</label>
+                            <input type="email" id="customerEmail" placeholder="your@email.com" required>
+                        </div>
+
+                        <button type="submit" class="btn-primary large">
+                            Pay Now <ion-icon name="lock-closed-outline"></ion-icon>
+                        </button>
+                    </form>
+                    <div id="message"></div>
+                </div>
+
+                <div id="errorMsg" class="hidden error-box"></div>
+
+                <div class="secure-badge mt-20">
+                    <ion-icon name="shield-checkmark-outline"></ion-icon> Secured by Paystack
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://js.paystack.co/v1/inline.js"></script>
+    <script>
+        // Inline script for standalone page logic
+        const API_URL = 'http://localhost:3000/api';
+        let product = null;
+        let publicKey = '';
+
+        async function init() {
+            // Get Slug from URL (last part)
+            const slug = window.location.pathname.split('/').pop();
+
+            try {
+                // Fetch Config
+                const configRes = await fetch(`${API_URL}/config`);
+                const configData = await configRes.json();
+                publicKey = configData.publicKey;
+
+                // Fetch Product
+                const res = await fetch(`${API_URL}/public/product/${slug}`);
+                if (!res.ok) throw new Error("Product not found");
+                product = await res.json();
+
+                // Render
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('productDetails').classList.remove('hidden');
+
+                document.getElementById('pName').textContent = product.name;
+                document.getElementById('pDesc').textContent = product.description;
+                document.getElementById('pPrice').textContent = product.price;
+
+            } catch (err) {
+                document.getElementById('loading').classList.add('hidden');
+                const errDiv = document.getElementById('errorMsg');
+                errDiv.textContent = err.message;
+                errDiv.classList.remove('hidden');
+            }
+        }
+
+        document.getElementById('publicPayForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('customerEmail').value;
+            const messageEl = document.getElementById('message');
+
+            messageEl.textContent = "Processing...";
+
+            try {
+                // Initialize Payment (We can re-use the same endpoint, just need to ignore userId if guest)
+                // Or create a specific public endpoint. Let's use the existing one but handle optional userId.
+                const res = await fetch(`${API_URL}/initialize-payment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email,
+                        amount: product.price,
+                        metadata: { product_slug: product.slug }
+                    })
+                });
+
+                const data = await res.json();
+                if (data.error) throw new Error(data.message);
+
+                const popup = new PaystackPop();
+                popup.resumeTransaction(data.data.access_code);
+
+                messageEl.textContent = "Please complete payment in the popup.";
+
+            } catch (err) {
+                messageEl.textContent = "Error: " + err.message;
+                messageEl.style.color = "red";
+            }
+        });
+
+        init();
+    </script>
+    <style>
+        .text-center {
+            text-align: center;
+        }
+
+        .text-muted {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .price-tag {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00d4ff;
+            margin: 15px 0;
+        }
+
+        .secure-badge {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .error-box {
+            color: #ef4444;
+            border: 1px solid #ef4444;
+            padding: 10px;
+            border-radius: 8px;
+        }
+    </style>
+</body>
+
+</html>
